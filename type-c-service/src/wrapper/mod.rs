@@ -13,6 +13,32 @@ use embedded_usb_pd::{type_c::Current as TypecCurrent, Error, PdError, PortId as
 
 mod pd;
 mod power;
+static mut debug_card_connect: bool = false;
+static mut State_updated: bool = false;
+
+pub fn init_detect_debug_card() {
+    unsafe {
+        debug_card_connect = false;
+        State_updated = false;
+    }
+}
+
+pub fn Update_Debug_Card_Status(status: bool) {
+    unsafe {
+        debug_card_connect = status;
+        State_updated = true;
+    }
+}
+
+pub fn Get_Debug_Card_Status() -> bool {
+    unsafe {
+        if State_updated {
+            debug_card_connect
+        } else {
+            false
+        }
+    }
+}
 
 /// Default current to source
 const DEFAULT_SOURCE_CURRENT: TypecCurrent = TypecCurrent::Current1A5;
@@ -58,7 +84,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
         info!("Plug event");
         if status.is_connected() {
             info!("Plug inserted");
-
+            init_detect_debug_card();
             // Recover if we're not in the correct state
             if power.state().await.kind() != StateKind::Detached {
                 warn!("Power device not in detached state, recovering");
@@ -144,6 +170,22 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
                 }
             };
             trace!("Port{} status: {:#?}", port, status);
+            let mut debug_card_detect: bool = false;
+
+            if status.is_connected() {
+                if global_port_id.0 == 0 {
+                    if status.is_debug_accessory() {
+                        debug_card_detect = true;
+                    } else {
+                        debug_card_detect = false;
+                    }
+                } else {
+                    debug_card_detect = false;
+                }
+            } else {
+                debug_card_detect = false;
+            }
+            Update_Debug_Card_Status(debug_card_detect);
 
             let power = match self.get_power_device(local_port_id) {
                 Ok(power) => power,
