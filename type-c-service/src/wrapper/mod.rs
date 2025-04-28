@@ -27,20 +27,21 @@ pub fn init_detect_debug_card() {
 
 pub fn Update_Debug_Card_Status(status: bool, port: u8) {
     //unsafe {
-        debug_card_connect = status;
         whichPort = port;
-        State_updated = true;
+
+        if (port == 0)
+        {
+            debug_card_connect = status;
+            State_updated = true;
+        }
+        
     //}
 }
 
-pub fn Get_Debug_Card_Status(DbgPort: u8) -> bool {
+pub fn Get_Debug_Card_Status() -> bool {
     //unsafe {
         if State_updated {
-            if DbgPort == whichPort{
                 debug_card_connect
-            }
-            
-
         } else {
             false
         }
