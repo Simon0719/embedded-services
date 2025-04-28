@@ -13,40 +13,78 @@ use embedded_usb_pd::{type_c::Current as TypecCurrent, Error, PdError, PortId as
 
 mod pd;
 mod power;
-static mut debug_card_connect: bool = false;
-static mut State_updated: bool = false;
-static mut whichPort: u8 = 0;
-
-pub fn init_detect_debug_card() {
-    unsafe {
-        debug_card_connect = false;
-        whichPort = 0;
-        State_updated = false;
-    }
+struct Record_dbg_card{
+    pub debug_card_connect: bool = false;
+    State_updated: bool = false;
+    whichPort: u8 = 0;
 }
+impl Record_dbg_card {
+    fn new(debug_card_connect: bool, State_updated: bool, whichPort: u8)-> Self{
+        Self{debug_card_connect, State_updated, whichPort}
+    }
+    async fn init (&mut self){
+        self.debug_card_connect = false;
+        self.whichPort = 0;
+        self.State_updated = false;
+    }
 
-pub fn Update_Debug_Card_Status(status: bool, port: u8) {
-    unsafe {
-        whichPort = port;
-
-        if (port == 0)
+    async fn Update_Debug_Card_Status(&mut self, status: bool, port: u8){
+        if self.whichPort == port //Only for Port 0 
         {
-            debug_card_connect = status;
-            State_updated = true;
+            self.debug_card_connect = status;
+            self.State_updated = true;
         }
-        
     }
-}
 
-pub fn Get_Debug_Card_Status() -> bool {
-    unsafe {
-        if State_updated {
-                debug_card_connect
-        } else {
-            false
+    pub async fn Get_Debug_Card_Status(&mut self) -> bool{
+        if self.State_updated == true
+        {
+            return self.debug_card_connect;
+        }
+        else
+        {
+            return false;
         }
     }
 }
+const DEFAULT_STATUS false
+const DEBUG_PORT    0
+let debug_card_status = Record_dbg_card::new(DEFAULT_STATUS, DEFAULT_STATUS, DEBUG_PORT);
+
+//static mut debug_card_connect: bool = false;
+//static mut State_updated: bool = false;
+//static mut whichPort: u8 = 0;
+
+//pub fn init_detect_debug_card() {
+//    unsafe {
+//        debug_card_connect = false;
+//        whichPort = 0;
+//        State_updated = false;
+//    }
+//}
+
+//pub fn Update_Debug_Card_Status(status: bool, port: u8) {
+//    unsafe {
+//        whichPort = port;
+//
+//        if (port == 0)
+//        {
+//            debug_card_connect = status;
+//            State_updated = true;
+//        }
+//        
+//    }
+//}
+
+//pub fn Get_Debug_Card_Status() -> bool {
+//    unsafe {
+//        if State_updated {
+//                debug_card_connect
+//        } else {
+//            false
+//        }
+//    }
+//}
 
 /// Default current to source
 const DEFAULT_SOURCE_CURRENT: TypecCurrent = TypecCurrent::Current1A5;
@@ -180,21 +218,31 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
             trace!("Port{} status: {:#?}", port, status);
             let mut debug_card_detect: bool = false;
 
-            if status.is_connected() {
-                if global_port_id.0 == 0 {
-                    if status.is_debug_accessory() {
-                        debug_card_detect = true;
-                    } else {
-                        debug_card_detect = false;
-                    }
-                } else {
-                    debug_card_detect = false;
-                }
-            } else {
+           // if status.is_connected() {
+           //     if global_port_id.0 == 0 {
+           //         if status.is_debug_accessory() {
+           //             debug_card_detect = true;
+           //         } else {
+           //             debug_card_detect = false;
+           //         }
+           //     } else {
+           //         debug_card_detect = false;
+           //     }
+           // } else {
+           //     debug_card_detect = false;
+           // }
+           if status.is_connected() && status.is_debug_accessory()
+           {
+                debug_card_detect = true;
+                
+           }
+           else
+           {
                 debug_card_detect = false;
-            }
-            Update_Debug_Card_Status(debug_card_detect, global_port_id.0);
-
+           } 
+          // Update_Debug_Card_Status(debug_card_detect, global_port_id.0);
+          debug_card_status.Update_Debug_Card_Status(debug_card_detect, global_port_id.0);
+            
             let power = match self.get_power_device(local_port_id) {
                 Ok(power) => power,
                 Err(_) => {
