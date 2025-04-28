@@ -14,9 +14,9 @@ use embedded_usb_pd::{type_c::Current as TypecCurrent, Error, PdError, PortId as
 mod pd;
 mod power;
 struct Record_dbg_card{
-    pub debug_card_connect: bool = false;
-    State_updated: bool = false;
-    whichPort: u8 = 0;
+    pub debug_card_connect: bool = false,
+    State_updated: bool = false,
+    whichPort: u8 = 0,
 }
 impl Record_dbg_card {
     fn new()-> Self{
@@ -47,8 +47,8 @@ impl Record_dbg_card {
         }
     }
 }
-const DEFAULT_STATUS false
-const DEBUG_PORT    0
+const DEFAULT_STATUS: false
+const DEBUG_PORT:    0
 let debug_card_status = Record_dbg_card::new();
 
 //static mut debug_card_connect: bool = false;
