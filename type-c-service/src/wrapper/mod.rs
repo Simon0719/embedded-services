@@ -15,7 +15,7 @@ mod pd;
 mod power;
 static mut debug_card_connect: bool = false;
 static mut State_updated: bool = false;
-static mut whichPort: u8;
+static mut whichPort: u8 = 0;
 
 pub fn init_detect_debug_card() {
     unsafe {
