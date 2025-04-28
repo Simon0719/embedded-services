@@ -192,7 +192,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
             } else {
                 debug_card_detect = false;
             }
-            Update_Debug_Card_Status(debug_card_detect);
+            Update_Debug_Card_Status(debug_card_detect, global_port_id.0);
 
             let power = match self.get_power_device(local_port_id) {
                 Ok(power) => power,
