@@ -19,7 +19,7 @@ struct Record_dbg_card{
     whichPort: u8 = 0;
 }
 impl Record_dbg_card {
-    fn new(debug_card_connect: bool, State_updated: bool, whichPort: u8)-> Self{
+    fn new()-> Self{
         Self{debug_card_connect, State_updated, whichPort}
     }
     async fn init (&mut self){
@@ -49,7 +49,7 @@ impl Record_dbg_card {
 }
 const DEFAULT_STATUS false
 const DEBUG_PORT    0
-let debug_card_status = Record_dbg_card::new(DEFAULT_STATUS, DEFAULT_STATUS, DEBUG_PORT);
+let debug_card_status = Record_dbg_card::new();
 
 //static mut debug_card_connect: bool = false;
 //static mut State_updated: bool = false;
