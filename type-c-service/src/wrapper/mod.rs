@@ -15,29 +15,36 @@ mod pd;
 mod power;
 static mut debug_card_connect: bool = false;
 static mut State_updated: bool = false;
+static mut whichPort: u8;
 
 pub fn init_detect_debug_card() {
-    unsafe {
+    //unsafe {
         debug_card_connect = false;
+        whichPort = 0;
         State_updated = false;
-    }
+    //}
 }
 
-pub fn Update_Debug_Card_Status(status: bool) {
-    unsafe {
+pub fn Update_Debug_Card_Status(status: bool, port: u8) {
+    //unsafe {
         debug_card_connect = status;
+        whichPort = port;
         State_updated = true;
-    }
+    //}
 }
 
-pub fn Get_Debug_Card_Status() -> bool {
-    unsafe {
+pub fn Get_Debug_Card_Status(DbgPort: u8) -> bool {
+    //unsafe {
         if State_updated {
-            debug_card_connect
+            if DbgPort == whichPort{
+                debug_card_connect
+            }
+            
+
         } else {
             false
         }
-    }
+    //}
 }
 
 /// Default current to source
