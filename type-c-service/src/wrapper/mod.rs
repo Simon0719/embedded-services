@@ -13,7 +13,6 @@ use embedded_usb_pd::{type_c::Current as TypecCurrent, Error, PdError, PortId as
 mod pd;
 mod power;
 
-pub static DEBUG_CARD_STATUS: Mutex<bool>= Mutex::new(false);
 pub struct Record_dbg_card{
     debug_card_connect: bool,
     dedicate_port: u8,
@@ -33,7 +32,7 @@ impl Record_dbg_card {
         }
     }
     fn get_debug_card_status(&mut self) -> bool{
-        self.debug_card_connect.lock().unwrap();
+        self.debug_card_connect
     }
 }
 
@@ -247,7 +246,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
             } else {
                     debug_card_detect = false;
             } 
-            record_dbg_state.Update_Debug_Card_Status(debug_card_detect, global_port_id.0);
+            record_dbg_state.update_Debug_Card_Status(debug_card_detect, global_port_id.0);
             
 
            // if status.is_connected() {
