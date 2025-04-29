@@ -3,6 +3,7 @@
 use core::array::from_fn;
 use core::cell::{Cell, RefCell};
 use embassy_sync::mutex::Mutex;
+use embassy_sync::blocking_mutex::raw::ThreadModeRawMutex;
 use embassy_futures::select::{select3, select_array, Either3};
 use embedded_services::power::policy::device::StateKind;
 use embedded_services::power::policy::{self, action};
@@ -41,7 +42,7 @@ pub async fn dbg_card_detect_init(select_port: u8){
 
 fn update_debug_card_status(dbg_sts:bool, whichPort: u8)
 {
-    let dbg_sts = dbg_card_sts.lock().await;
+    let dbg_sts = dbg_card_sts.lock();
     let mut dbg_sts_update = dbg_sts.borrow_mut();
     
     if dbg_sts_update.dedicate_port == whichPort{
@@ -49,7 +50,7 @@ fn update_debug_card_status(dbg_sts:bool, whichPort: u8)
     }
 }
 pub fn get_debug_card_status() -> bool{
-    let dbg_sts = dbg_card_sts.lock().await;
+    let dbg_sts = dbg_card_sts.lock();
     let mut dbg_sts_update = dbg_sts.borrow_mut();
     return dbg_sts_update.debug_card_connect;
 }
@@ -170,7 +171,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
         info!("Plug event");
         if status.is_connected() {
             info!("Plug inserted");
-            dbg_card_detect_init();
+            dbg_card_detect_init(0u8);
             // Recover if we're not in the correct state
             if power.state().await.kind() != StateKind::Detached {
                 warn!("Power device not in detached state, recovering");
