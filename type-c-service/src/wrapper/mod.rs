@@ -18,33 +18,43 @@ pub struct Record_dbg_card{
     dedicate_port: u8,
     initial: bool,
 }
-pub static dbg_card_sts: Mutex<Record_dbg_card> = Mutex::new(None);
+pub static dbg_card_sts: Mutex<ThreadModeRawMutex, RefCell<Record_dbg_card>> = Mutex::new(RefCell::new(Record_dbg_card::new()));
 
-
-fn dbg_card_detect_init(){
-    let debug_card_connect = false;
-    let dedicate_port = 0;
-    let initial = true;
-    let mut data = dbg_card_sts.lock().unwrap();
-    *data = Some(dbg_card_sts {debug_card_connect, dedicate_port, initial});
+impl Record_dbg_card {
+    const fn new() -> Self {
+        Self {
+            debug_card_connect: false,
+            dedicate_port: 0,
+            initial: false,
+        }
+    }
 }
+
+
+pub async fn dbg_card_detect_init(select_port: u8){
+    let dbg_sts = dbg_card_sts.lock().await;
+    let mut dbg_sts_update = dbg_sts.borrow_mut();
+    dbg_sts_update.debug_card_connect = false;
+    dbg_sts_update.dedicate_port = select_port;
+    dbg_sts_update.initial = true;
+}
+
 fn update_debug_card_status(dbg_sts:bool, whichPort: u8)
 {
-    let mut data = dbg_card_sts.lock().unwrap();
-    if data.dedicate_port == whichPort{
-    *data = Some (dbg_card_sts{dbg_sts, dbg_card_sts: dedicate_port, dbg_card_status: initial });
+    let dbg_sts = dbg_card_sts.lock().await;
+    let mut dbg_sts_update = dbg_sts.borrow_mut();
+    
+    if dbg_sts_update.dedicate_port == whichPort{
+        dbg_sts_update.debug_card_connect = dbg_sts;
     }
 }
 pub fn get_debug_card_status() -> bool{
-    let data = dbg_card_sts.lock().unwrap();
-    data.debug_card_connect
+    let dbg_sts = dbg_card_sts.lock().await;
+    let mut dbg_sts_update = dbg_sts.borrow_mut();
+    return dbg_sts_update.debug_card_connect;
 }
 
 
-pub fn set_debug_card_port(assign_port: u8)
-{
-    dbg_card_sts.dedicate_port = assign_port;
-}
 
 //fn Update_Debug_Card_Status(&mut self, status: bool, port: u8){
 //if self.whichPort == port //Only for Port 0 
