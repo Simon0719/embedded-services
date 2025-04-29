@@ -19,9 +19,9 @@ pub struct Record_dbg_card{
     initial: bool,
 }
 impl Record_dbg_card {
-    fn init(select_port: u8) -> Self{
+    fn init() -> Self{
         let debug_card_connect = false;
-        let dedicate_port = select_port;
+        let dedicate_port = 0;
         let initial = true;
         Record_dbg_card{debug_card_connect, dedicate_port, initial}
     }
@@ -36,7 +36,12 @@ impl Record_dbg_card {
     }
 }
 
-static mut dbg_card_sts:Record_dbg_card::init(0);
+static mut dbg_card_sts:Record_dbg_card::init();
+
+pub fn set_debug_card_port(assign_port: u8)
+{
+    dbg_card_sts.dedicate_port = assign_port;
+}
 
 //fn Update_Debug_Card_Status(&mut self, status: bool, port: u8){
 //if self.whichPort == port //Only for Port 0 
