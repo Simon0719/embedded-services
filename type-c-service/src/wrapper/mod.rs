@@ -36,6 +36,7 @@ impl Record_dbg_card {
     }
 }
 
+static mut dbg_card_sts:Record_dbg_card::init(0);
 
 //fn Update_Debug_Card_Status(&mut self, status: bool, port: u8){
 //if self.whichPort == port //Only for Port 0 
@@ -203,8 +204,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
     /// None of the event processing functions return errors to allow processing to continue for other ports on a controller
     async fn process_event(&self, controller: &mut C) {
         let mut port_events = PortEventFlags::none();
-        let mut record_dbg_state = Record_dbg_card::init(0);
-
+        
         for port in 0..N {
             let local_port_id = LocalPortId(port as u8);
             let global_port_id = match self.pd_controller.lookup_global_port(local_port_id) {
@@ -246,7 +246,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
             } else {
                     debug_card_detect = false;
             } 
-            record_dbg_state.update_debug_card_status(debug_card_detect, global_port_id.0);
+            dbg_card_sts.update_debug_card_status(debug_card_detect, global_port_id.0);
             
 
            // if status.is_connected() {
