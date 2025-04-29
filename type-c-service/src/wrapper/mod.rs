@@ -18,14 +18,21 @@ static DEBUG_CARD_STATUS: OnceLock<Record_dbg_card>= OnceLock::new();
 pub struct Record_dbg_card{
     pub debug_card_connect: bool,
     whichPort: u8,
+    initial: u8,
 }
+pub fn debug_card_init_state()
+{
+    if get_debug_card_Status().initial == false {
 
-let debug_card_status= Record_dbg_card{
-    debug_card_connect: false,
-    whichPort:0,
+        let debug_card_status= Record_dbg_card{
+            debug_card_connect: false,
+            whichPort:0,
+            initial:true,
+        }
+        
+        let _ = DEBUG_CARD_STATUS.Init(debug_card_status);
+    }
 }
-
-let _ = DEBUG_CARD_STATUS.Init(debug_card_status);
 
 pub fn get_debug_card_Status() -> &'static Record_dbg_card {
     DEBUG_CARD_STATUS.try_get().expect("Debug card status not initialized")
@@ -148,7 +155,6 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
             active_events: [const { Cell::new(PortEventKind::none()) }; N],
         }
     }
-
     /// Handle a plug event
     async fn process_plug_event(
         &self,
@@ -165,7 +171,6 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
         info!("Plug event");
         if status.is_connected() {
             info!("Plug inserted");
-            init_detect_debug_card();
             // Recover if we're not in the correct state
             if power.state().await.kind() != StateKind::Detached {
                 warn!("Power device not in detached state, recovering");
@@ -284,7 +289,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
            // }
           
           // Update_Debug_Card_Status(debug_card_detect, global_port_id.0);
-          debug_card_status.Update_Debug_Card_Status(debug_card_detect, global_port_id.0);
+          //debug_card_status.Update_Debug_Card_Status(debug_card_detect, global_port_id.0);
             
             let power = match self.get_power_device(local_port_id) {
                 Ok(power) => power,
