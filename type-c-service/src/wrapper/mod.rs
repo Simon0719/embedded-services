@@ -18,7 +18,7 @@ static DEBUG_CARD_STATUS: OnceLock<Record_dbg_card>= OnceLock::new();
 pub struct Record_dbg_card{
     pub debug_card_connect: bool,
     whichPort: u8,
-    initial: u8,
+    initial: bool,
 }
 pub fn debug_card_init_state()
 {
@@ -265,6 +265,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
                 let debug_card_status= Record_dbg_card{
                     debug_card_connect: debug_card_detect,
                     whichPort:0,
+                    initial: true,
                 }
                 let _ = DEBUG_CARD_STATUS.Init(debug_card_status);
             }
