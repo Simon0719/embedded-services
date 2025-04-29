@@ -4,6 +4,7 @@ use core::array::from_fn;
 use core::cell::{Cell, RefCell};
 use embassy_sync::mutex::Mutex;
 use embassy_sync::blocking_mutex::raw::ThreadModeRawMutex;
+use core::borrow::BorrowMut;
 use embassy_futures::select::{select3, select_array, Either3};
 use embedded_services::power::policy::device::StateKind;
 use embedded_services::power::policy::{self, action};
@@ -34,7 +35,7 @@ impl Record_dbg_card {
 
 pub async fn dbg_card_detect_init(select_port: u8){
     let dbg_sts = dbg_card_sts.lock().await;
-    let mut dbg_sts_update = dbg_sts.borrow_mut();
+    let mut dbg_sts_update = dbg_sts.await.borrow_mut();
     dbg_sts_update.debug_card_connect = false;
     dbg_sts_update.dedicate_port = select_port;
     dbg_sts_update.initial = true;
@@ -43,7 +44,7 @@ pub async fn dbg_card_detect_init(select_port: u8){
 fn update_debug_card_status(dbg_sts:bool, whichPort: u8)
 {
     let dbg_sts = dbg_card_sts.lock();
-    let mut dbg_sts_update = dbg_sts.borrow_mut();
+    let mut dbg_sts_update = dbg_sts.await.borrow_mut();
     
     if dbg_sts_update.dedicate_port == whichPort{
         dbg_sts_update.debug_card_connect = dbg_sts;
@@ -51,7 +52,7 @@ fn update_debug_card_status(dbg_sts:bool, whichPort: u8)
 }
 pub fn get_debug_card_status() -> bool{
     let dbg_sts = dbg_card_sts.lock();
-    let mut dbg_sts_update = dbg_sts.borrow_mut();
+    let mut dbg_sts_update = dbg_sts.await.borrow_mut();
     return dbg_sts_update.debug_card_connect;
 }
 
