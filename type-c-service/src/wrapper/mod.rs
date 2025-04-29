@@ -14,7 +14,7 @@ use embedded_usb_pd::{type_c::Current as TypecCurrent, Error, PdError, PortId as
 mod pd;
 mod power;
 
-static DEBUG_CARD_STATUS: OnceLock<Record_dbg_card>: OnceLock::new();
+static DEBUG_CARD_STATUS: OnceLock<Record_dbg_card>= OnceLock::new();
 pub struct Record_dbg_card{
     pub debug_card_connect: bool,
     whichPort: u8,
