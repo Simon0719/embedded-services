@@ -30,7 +30,7 @@ pub fn debug_card_init_state()
             initial:true,
         }
         
-        let _ = DEBUG_CARD_STATUS.init(debug_card_status);
+        DEBUG_CARD_STATUS.init(debug_card_status);
     }
 }
 
@@ -267,7 +267,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
                     whichPort:0,
                     initial: true,
                 }
-                let _ = DEBUG_CARD_STATUS.init(debug_card_status);
+                DEBUG_CARD_STATUS.init(debug_card_status);
             }
 
             
