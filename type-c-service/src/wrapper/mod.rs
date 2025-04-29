@@ -18,7 +18,7 @@ pub struct Record_dbg_card{
     dedicate_port: u8,
     initial: bool,
 }
-pub static dbg_card_sts: Mutex<Option<Record_dbg_card>> = Mutex::new(None);
+pub static dbg_card_sts: Mutex<Record_dbg_card> = Mutex::new(None);
 
 
 fn dbg_card_detect_init(){
@@ -32,10 +32,10 @@ fn update_debug_card_status(dbg_sts:bool, whichPort: u8)
 {
     let mut data = dbg_card_sts.lock().unwrap();
     if data.dedicate_port == whichPort{
-    *data = Some (dbg_card_sts{dbg_sts, dbg_card_sts.dedicate_port, dbg_card_status.initial });
+    *data = Some (dbg_card_sts{dbg_sts, dbg_card_sts: dedicate_port, dbg_card_status: initial });
     }
 }
-pub fn get_debug_card_status(&mut self) -> bool{
+pub fn get_debug_card_status() -> bool{
     let data = dbg_card_sts.lock().unwrap();
     data.debug_card_connect
 }
