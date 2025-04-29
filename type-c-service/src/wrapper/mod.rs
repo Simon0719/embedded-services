@@ -36,7 +36,7 @@ impl Record_dbg_card {
     }
 }
 
-static mut dbg_card_sts= Record_dbg_card::init();
+let dbg_card_sts= Record_dbg_card::init();
 
 pub fn set_debug_card_port(assign_port: u8)
 {
