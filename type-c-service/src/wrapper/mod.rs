@@ -13,7 +13,7 @@ use embedded_usb_pd::{type_c::Current as TypecCurrent, Error, PdError, PortId as
 mod pd;
 mod power;
 
-9[#derive(Debug)]
+[#derive(Debug)]
 pub struct Record_dbg_card{
     debug_card_connect: bool,
     dedicate_port: u8,
