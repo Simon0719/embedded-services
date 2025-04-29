@@ -89,9 +89,6 @@ pub fn match_debug_card_port(detect_port: u8) -> bool{
 
     
 //}
-const DEFAULT_STATUS: bool = false;
-const DEBUG_PORT: u8 =   0;
-let debug_card_status = Record_dbg_card::new();
 
 //static mut debug_card_connect: bool = false;
 //static mut State_updated: bool = false;
