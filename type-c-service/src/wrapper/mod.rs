@@ -246,7 +246,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
             } else {
                     debug_card_detect = false;
             } 
-            record_dbg_state.update_Debug_Card_Status(debug_card_detect, global_port_id.0);
+            record_dbg_state.update_debug_card_status(debug_card_detect, global_port_id.0);
             
 
            // if status.is_connected() {
