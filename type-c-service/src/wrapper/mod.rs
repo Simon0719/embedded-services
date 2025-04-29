@@ -2,7 +2,7 @@
 //! which provides a bridge between various service messages and the actual controller functions.
 use core::array::from_fn;
 use core::cell::{Cell, RefCell};
-
+use embassy_sync::mutex::Mutex;
 use embassy_futures::select::{select3, select_array, Either3};
 use embedded_services::power::policy::device::StateKind;
 use embedded_services::power::policy::{self, action};
@@ -10,47 +10,31 @@ use embedded_services::type_c::controller::{self, Controller, PortStatus};
 use embedded_services::type_c::event::{PortEventFlags, PortEventKind};
 use embedded_services::{error, info, intrusive_list, trace, warn};
 use embedded_usb_pd::{type_c::Current as TypecCurrent, Error, PdError, PortId as LocalPortId};
-use embassy_sync::once_lock::OnceLock;
 mod pd;
 mod power;
 
-static DEBUG_CARD_STATUS: OnceLock<Record_dbg_card>= OnceLock::new();
+pub static DEBUG_CARD_STATUS: Mutex<bool>= Mutex::new(false);
 pub struct Record_dbg_card{
-    pub debug_card_connect: bool,
-    whichPort: u8,
+    debug_card_connect: bool,
+    dedicate_port: u8,
     initial: bool,
 }
-pub fn debug_card_init_state()
-{
-    if get_debug_card_Status().initial == false {
-
-        let debug_card_status= Record_dbg_card{
-            debug_card_connect: false,
-            whichPort:0,
-            initial:true,
+impl Record_dbg_card {
+    fn init(select_port: u8) -> Self{
+        let debug_card_connect = false;
+        let dedicate_port = select_port;
+        let initial = true;
+        Record_dbg_card{debug_card_connect, dedicate_port, initial}
+    }
+    fn update_debug_card_status(&mut self, dbg_sts:bool, whichPort: u8)
+    {
+        if self.dedicate_port == whichPort{
+            self.debug_card_connect = dbg_sts;
         }
-        
-        DEBUG_CARD_STATUS.init(debug_card_status);
     }
-}
-
-pub fn get_debug_card_Status() -> &'static Record_dbg_card {
-    DEBUG_CARD_STATUS.try_get().expect("Debug card status not initialized")
-}
-
-/// Function to get the raw board ID
-pub fn get_debug_card_connect_state() -> bool {
-    get_debug_card_Status().debug_card_connect
-}
-
-pub fn match_debug_card_port(detect_port: u8) -> bool{
-    if get_debug_card_Status().whichPort == detect_port{
-        return true
-    }  else {
-        return false
+    fn get_debug_card_status(&mut self) -> bool{
+        self.debug_card_connect.lock().unwrap();
     }
-
-
 }
 
 
@@ -168,6 +152,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
         info!("Plug event");
         if status.is_connected() {
             info!("Plug inserted");
+            
             // Recover if we're not in the correct state
             if power.state().await.kind() != StateKind::Detached {
                 warn!("Power device not in detached state, recovering");
@@ -219,6 +204,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
     /// None of the event processing functions return errors to allow processing to continue for other ports on a controller
     async fn process_event(&self, controller: &mut C) {
         let mut port_events = PortEventFlags::none();
+        let record_dbg_state = Record_dbg_card::init(0);
 
         for port in 0..N {
             let local_port_id = LocalPortId(port as u8);
@@ -254,22 +240,14 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
             };
             trace!("Port{} status: {:#?}", port, status);
 
-            if (match_debug_card_port(global_port_id.0)){
-                let mut debug_card_detect: bool = false;
-                if status.is_connected() && status.is_debug_accessory() {
-                     debug_card_detect = true;   
-                } else {
-                     debug_card_detect = false;
-                } 
-
-                let debug_card_status= Record_dbg_card{
-                    debug_card_connect: debug_card_detect,
-                    whichPort:0,
-                    initial: true,
-                }
-                DEBUG_CARD_STATUS.init(debug_card_status);
-            }
-
+            
+            let mut debug_card_detect: bool = false;
+            if status.is_connected() && status.is_debug_accessory() {
+                    debug_card_detect = true;   
+            } else {
+                    debug_card_detect = false;
+            } 
+            record_dbg_state.Update_Debug_Card_Status(debug_card_detect, global_port_id.0);
             
 
            // if status.is_connected() {
