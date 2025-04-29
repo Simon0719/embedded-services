@@ -13,42 +13,77 @@ use embedded_usb_pd::{type_c::Current as TypecCurrent, Error, PdError, PortId as
 
 mod pd;
 mod power;
-struct Record_dbg_card{
-    pub debug_card_connect: bool = false,
-    State_updated: bool = false,
-    whichPort: u8 = 0,
+
+static DEBUG_CARD_STATUS: OnceLock<Record_dbg_card>: OnceLock::new();
+pub struct Record_dbg_card{
+    pub debug_card_connect: bool,
+    whichPort: u8,
 }
-impl Record_dbg_card {
-    fn new()-> Self{
-        Self{debug_card_connect, State_updated, whichPort}
-    }
-    async fn init (&mut self){
-        self.debug_card_connect = false;
-        self.whichPort = 0;
-        self.State_updated = false;
+
+let debug_card_status= Record_dbg_card{
+    debug_card_connect: false,
+    whichPort:0,
+}
+
+let _ = DEBUG_CARD_STATUS.Init(debug_card_status);
+
+pub fn get_debug_card_Status() -> &'static Record_dbg_card {
+    DEBUG_CARD_STATUS.try_get().expect("Debug card status not initialized")
+}
+
+/// Function to get the raw board ID
+pub fn get_debug_card_connect_state() -> bool {
+    get_debug_card_Status().debug_card_connect
+}
+
+pub fn match_debug_card_port(detect_port: u8) -> bool{
+    if get_debug_card_Status().whichPort == detect_port{
+        return true
+    }  else {
+        return false
     }
 
-    async fn Update_Debug_Card_Status(&mut self, status: bool, port: u8){
-        if self.whichPort == port //Only for Port 0 
-        {
-            self.debug_card_connect = status;
-            self.State_updated = true;
-        }
-    }
 
-    pub async fn Get_Debug_Card_Status(&mut self) -> bool{
-        if self.State_updated == true
-        {
-            return self.debug_card_connect;
-        }
-        else
-        {
-            return false;
-        }
-    }
 }
-const DEFAULT_STATUS: false
-const DEBUG_PORT:    0
+
+
+//fn Update_Debug_Card_Status(&mut self, status: bool, port: u8){
+//if self.whichPort == port //Only for Port 0 
+//{
+//    self.debug_card_connect = status;
+//    self.State_updated = true;
+//}
+
+//pub async fn Get_Debug_Card_Status(&mut self) -> bool{
+//    if self.State_updated == true
+//    {
+//        return self.debug_card_connect;
+//    }
+//    else
+//    {
+//        return false;
+//    }
+//}
+
+
+
+//impl Record_dbg_card {
+//    fn new()-> Self{
+//        Self{debug_card_connect, State_updated, whichPort}
+//    }
+//    async fn init (&mut self){
+//        self.debug_card_connect = false;
+//        self.whichPort = 0;
+//        self.State_updated = false;
+//    }
+//
+//    async 
+//    }
+
+    
+//}
+const DEFAULT_STATUS: bool = false;
+const DEBUG_PORT: u8 =   0;
 let debug_card_status = Record_dbg_card::new();
 
 //static mut debug_card_connect: bool = false;
@@ -216,7 +251,23 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
                 }
             };
             trace!("Port{} status: {:#?}", port, status);
-            let mut debug_card_detect: bool = false;
+
+            if (match_debug_card_port(global_port_id.0)){
+                let mut debug_card_detect: bool = false;
+                if status.is_connected() && status.is_debug_accessory() {
+                     debug_card_detect = true;   
+                } else {
+                     debug_card_detect = false;
+                } 
+
+                let debug_card_status= Record_dbg_card{
+                    debug_card_connect: debug_card_detect,
+                    whichPort:0,
+                }
+                let _ = DEBUG_CARD_STATUS.Init(debug_card_status);
+            }
+
+            
 
            // if status.is_connected() {
            //     if global_port_id.0 == 0 {
@@ -231,15 +282,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
            // } else {
            //     debug_card_detect = false;
            // }
-           if status.is_connected() && status.is_debug_accessory()
-           {
-                debug_card_detect = true;
-                
-           }
-           else
-           {
-                debug_card_detect = false;
-           } 
+          
           // Update_Debug_Card_Status(debug_card_detect, global_port_id.0);
           debug_card_status.Update_Debug_Card_Status(debug_card_detect, global_port_id.0);
             
