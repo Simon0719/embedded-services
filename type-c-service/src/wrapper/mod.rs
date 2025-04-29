@@ -13,30 +13,34 @@ use embedded_usb_pd::{type_c::Current as TypecCurrent, Error, PdError, PortId as
 mod pd;
 mod power;
 
+9[#derive(Debug)]
 pub struct Record_dbg_card{
     debug_card_connect: bool,
     dedicate_port: u8,
     initial: bool,
 }
-impl Record_dbg_card {
-    fn init() -> Self{
-        let debug_card_connect = false;
-        let dedicate_port = 0;
-        let initial = true;
-        Record_dbg_card{debug_card_connect, dedicate_port, initial}
-    }
-    fn update_debug_card_status(&mut self, dbg_sts:bool, whichPort: u8)
-    {
-        if self.dedicate_port == whichPort{
-            self.debug_card_connect = dbg_sts;
-        }
-    }
-    fn get_debug_card_status(&mut self) -> bool{
-        self.debug_card_connect
+pub static dbg_card_sts: Mutex<Option<Record_dbg_card>> = Mutex::new(None);
+
+
+fn dbg_card_detect_init(){
+    let debug_card_connect = false;
+    let dedicate_port = 0;
+    let initial = true;
+    let mut data = dbg_card_sts.lock().unwrap();
+    *data = Some(dbg_card_sts {debug_card_connect, dedicate_port, initial});
+}
+fn update_debug_card_status(dbg_sts:bool, whichPort: u8)
+{
+    let mut data = dbg_card_sts.lock().unwrap();
+    if data.dedicate_port == whichPort{
+    *data = Some (dbg_card_sts{dbg_sts, dbg_card_sts.dedicate_port, dbg_card_status.initial });
     }
 }
+pub fn get_debug_card_status(&mut self) -> bool{
+    let data = dbg_card_sts.lock().unwrap();
+    data.debug_card_connect
+}
 
-let dbg_card_sts= Record_dbg_card::init();
 
 pub fn set_debug_card_port(assign_port: u8)
 {
@@ -157,7 +161,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
         info!("Plug event");
         if status.is_connected() {
             info!("Plug inserted");
-            
+            dbg_card_detect_init();
             // Recover if we're not in the correct state
             if power.state().await.kind() != StateKind::Detached {
                 warn!("Power device not in detached state, recovering");
@@ -210,6 +214,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
     async fn process_event(&self, controller: &mut C) {
         let mut port_events = PortEventFlags::none();
         
+
         for port in 0..N {
             let local_port_id = LocalPortId(port as u8);
             let global_port_id = match self.pd_controller.lookup_global_port(local_port_id) {
@@ -251,7 +256,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
             } else {
                     debug_card_detect = false;
             } 
-            dbg_card_sts.update_debug_card_status(debug_card_detect, global_port_id.0);
+            update_debug_card_status(debug_card_detect, global_port_id.0);
             
 
            // if status.is_connected() {
