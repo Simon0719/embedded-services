@@ -203,7 +203,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
     /// None of the event processing functions return errors to allow processing to continue for other ports on a controller
     async fn process_event(&self, controller: &mut C) {
         let mut port_events = PortEventFlags::none();
-        let record_dbg_state = Record_dbg_card::init(0);
+        let mut record_dbg_state = Record_dbg_card::init(0);
 
         for port in 0..N {
             let local_port_id = LocalPortId(port as u8);
