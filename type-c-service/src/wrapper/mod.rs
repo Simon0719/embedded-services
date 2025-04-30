@@ -15,6 +15,55 @@ use embedded_usb_pd::{type_c::Current as TypecCurrent, Error, PdError, PortId as
 //use subsystem_soc::ssh::set_debug_card_status;
 mod pd;
 mod power;
+
+static DBG_CARD_STS: Mutex<ThreadModeRawMutex, RefCell<RecordDbgCard>> =
+    Mutex::new(RefCell::new(RecordDbgCard::new()));
+pub struct RecordDbgCard {
+    pub debug_card_connect: u8,
+    pub dedicate_port: u8,
+    pub initial: bool,
+}
+
+impl RecordDbgCard {
+    const fn new() -> Self {
+        Self {
+            debug_card_connect: 0,
+            dedicate_port: 0,
+            initial: false,
+        }
+    }
+}
+
+pub async fn set_debug_card_port(select_port: u8) {
+    let dbg_temp = DBG_CARD_STS.lock().await;
+    let mut assign_port = dbg_temp.borrow_mut();
+    assign_port.dedicate_port = select_port;
+    assign_port.initial = true;
+}
+
+pub async fn set_debug_card_status(status_update: u8, whichPort: u8) {
+    let dbg_temp = DBG_CARD_STS.lock().await;
+    let mut assign_status = dbg_temp.borrow_mut();
+    if assign_status.initial == true {
+        if assign_status.dedicate_port == whichPort {
+            assign_status.debug_card_connect = status_update;
+        } else {
+            surfdbg_info!("Inserting Debug card in incorrect port!!");
+        }
+    } else {
+        surfdbg_info!("Never assign Debug port");
+    }
+}
+
+pub async fn get_debug_card_status() -> u8 {
+    let dbg_temp = DBG_CARD_STS.lock().await;
+    let report_status = dbg_temp.borrow_mut();
+    let sts = report_status.debug_card_connect;
+    return sts;
+}
+
+
+
 //static BATTERY_INFO: Mutex<ThreadModeRawMutex, RefCell<BattInfo>> =
 //    Mutex::new(RefCell::new(BattInfo::new()));
 
