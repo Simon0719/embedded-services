@@ -16,30 +16,7 @@ mod pd;
 mod power;
 //static BATTERY_INFO: Mutex<ThreadModeRawMutex, RefCell<BattInfo>> =
 //    Mutex::new(RefCell::new(BattInfo::new()));
-static dbg_card_sts: Mutex<ThreadModeRawMutex, RefCell<Record_dbg_card>> = 
-    Mutex::new(RefCell::new(Record_dbg_card::new()));
-pub struct Record_dbg_card{
-    pub debug_card_connect: bool,
-    pub dedicate_port: u8,
-    pub initial: bool,
-}
 
-impl Record_dbg_card {
-    const fn new() -> Self {
-        Self {
-            debug_card_connect: false,
-            dedicate_port: 0,
-            initial: false,
-        }
-    }
-}
-
-pub async fn set_debug_card_port(select_port: u8){
-    //let mut dbg_temp = dbg_card_sts.lock().await;
-    //let mut assign_port = dbg_temp.borrow_mut();
-    //assign_port.dedicate_port = select_port;
-    //assign_port.
-}
 
 
 
