@@ -28,18 +28,18 @@ pub struct Record_dbg_card{
 pub static dbg_card_sts: Record_dbg_card = Record_dbg_card{debug_card_connect: false, dedicate_port:0, initial:false};
 
 pub async fn dbg_card_detect_init(select_port: u8) {
-    dbg_sts_update.borrow_mut().dedicate_port = select_port;
-    dbg_sts_update.initial = true;
+    dbg_card_sts.borrow_mut().dedicate_port = select_port;
+    dbg_card_sts.initial = true;
 }
 
 fn update_debug_card_status(dbg_sts:bool, whichPort: u8) 
 {
-    if dbg_sts_update.dedicate_port == whichPort{
-        dbg_sts_update.debug_card_connect = dbg_sts;
+    if dbg_card_sts.dedicate_port == whichPort{
+        dbg_card_sts.debug_card_connect = dbg_sts;
     }
 }
 pub fn get_debug_card_status() -> bool{
-    let dbg_connect = dbg_sts_update.debug_card_connect;
+    let dbg_connect = dbg_card_sts.debug_card_connect;
     return dbg_connect;
 }
 
