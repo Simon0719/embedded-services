@@ -12,6 +12,7 @@ use embedded_services::type_c::controller::{self, Controller, PortStatus};
 use embedded_services::type_c::event::{PortEventFlags, PortEventKind};
 use embedded_services::{error, info, intrusive_list, trace, warn};
 use embedded_usb_pd::{type_c::Current as TypecCurrent, Error, PdError, PortId as LocalPortId};
+use subsystem_soc::ssh::set_debug_card_status;
 mod pd;
 mod power;
 //static BATTERY_INFO: Mutex<ThreadModeRawMutex, RefCell<BattInfo>> =
@@ -242,15 +243,15 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
             };
             trace!("Port{} status: {:#?}", port, status);
 
-            /* 
+            
             let mut debug_card_detect: bool = false;
             if status.is_connected() && status.is_debug_accessory() {
                     debug_card_detect = true;   
             } else {
                     debug_card_detect = false;
             } 
-            update_debug_card_status(debug_card_detect, global_port_id.0);
-            */
+            set_debug_card_status(debug_card_detect, global_port_id.0);
+            
 
            // if status.is_connected() {
            //     if global_port_id.0 == 0 {
