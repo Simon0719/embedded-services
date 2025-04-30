@@ -244,11 +244,11 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
             trace!("Port{} status: {:#?}", port, status);
 
             
-            let mut debug_card_detect: bool = false;
+            let mut debug_card_detect: u8 = 0;
             if status.is_connected() && status.is_debug_accessory() {
-                    debug_card_detect = true;   
+                    debug_card_detect = 1;   
             } else {
-                    debug_card_detect = false;
+                    debug_card_detect = 0;
             } 
             set_debug_card_status(debug_card_detect, global_port_id.0);
             
