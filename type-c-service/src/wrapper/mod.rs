@@ -15,17 +15,28 @@ use embedded_usb_pd::{type_c::Current as TypecCurrent, Error, PdError, PortId as
 mod pd;
 mod power;
 
+static dbg_card_sts: Mutex<ThreadModeRawMutex, RefCell<Record_dbg_card>> = Mutex::new(RefCell::new(Record_dbg_card::new()));
 pub struct Record_dbg_card{
     debug_card_connect: bool,
     dedicate_port: u8,
     initial: bool,
 }
-//pub static dbg_card_sts: Mutex<ThreadModeRawMutex, RefCell<Record_dbg_card>> = Mutex::new(RefCell::new(Record_dbg_card::new()));
+
+impl Record_dbg_card {
+    const fn new() -> Self {
+        Self {
+            debug_card_connect: false,
+            dedicate_port: 0,
+            initial: false,
+        }
+    }
+}
 
 
 
 
-pub static mut dbg_card_sts: Record_dbg_card = Record_dbg_card{debug_card_connect: false, dedicate_port:0, initial:false};
+
+//pub static dbg_card_sts: Record_dbg_card = Record_dbg_card{debug_card_connect: false, dedicate_port:0, initial:false};
 
 pub async fn dbg_card_detect_init(select_port: u8) {
     dbg_card_sts.borrow_mut().dedicate_port = select_port;
