@@ -12,7 +12,7 @@ use embedded_services::type_c::controller::{self, Controller, PortStatus};
 use embedded_services::type_c::event::{PortEventFlags, PortEventKind};
 use embedded_services::{error, info, intrusive_list, trace, warn};
 use embedded_usb_pd::{type_c::Current as TypecCurrent, Error, PdError, PortId as LocalPortId};
-use subsystem_soc::ssh::set_debug_card_status;
+//use subsystem_soc::ssh::set_debug_card_status;
 mod pd;
 mod power;
 //static BATTERY_INFO: Mutex<ThreadModeRawMutex, RefCell<BattInfo>> =
