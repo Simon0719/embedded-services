@@ -28,7 +28,7 @@ pub struct Record_dbg_card{
 pub static dbg_card_sts: Record_dbg_card = Record_dbg_card{debug_card_connect: false, dedicate_port:0, initial:false};
 
 pub async fn dbg_card_detect_init(select_port: u8) {
-    dbg_sts_update.clone().dedicate_port = select_port;
+    dbg_sts_update.borrow_mut().dedicate_port = select_port;
     dbg_sts_update.initial = true;
 }
 
