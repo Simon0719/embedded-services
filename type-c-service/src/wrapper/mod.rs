@@ -37,7 +37,7 @@ impl Record_dbg_card {
 
 
 //pub static dbg_card_sts: Record_dbg_card = Record_dbg_card{debug_card_connect: false, dedicate_port:0, initial:false};
-
+/* 
 pub async fn dbg_card_detect_init(select_port: u8) {
     dbg_card_sts.borrow_mut().dedicate_port = select_port;
     dbg_card_sts.initial = true;
@@ -53,7 +53,7 @@ pub fn get_debug_card_status() -> bool{
     let dbg_connect = dbg_card_sts.debug_card_connect;
     return dbg_connect;
 }
-
+*/
 
 
 //fn Update_Debug_Card_Status(&mut self, status: bool, port: u8){
@@ -170,7 +170,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
         info!("Plug event");
         if status.is_connected() {
             info!("Plug inserted");
-            dbg_card_detect_init(0u8);
+            //dbg_card_detect_init(0u8);
             // Recover if we're not in the correct state
             if power.state().await.kind() != StateKind::Detached {
                 warn!("Power device not in detached state, recovering");
@@ -258,7 +258,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
             };
             trace!("Port{} status: {:#?}", port, status);
 
-            
+            /* 
             let mut debug_card_detect: bool = false;
             if status.is_connected() && status.is_debug_accessory() {
                     debug_card_detect = true;   
@@ -266,7 +266,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
                     debug_card_detect = false;
             } 
             update_debug_card_status(debug_card_detect, global_port_id.0);
-            
+            */
 
            // if status.is_connected() {
            //     if global_port_id.0 == 0 {
