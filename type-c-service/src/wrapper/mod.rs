@@ -14,8 +14,10 @@ use embedded_services::{error, info, intrusive_list, trace, warn};
 use embedded_usb_pd::{type_c::Current as TypecCurrent, Error, PdError, PortId as LocalPortId};
 mod pd;
 mod power;
-
-static dbg_card_sts: Mutex<ThreadModeRawMutex, RefCell<Record_dbg_card>> = Mutex::new(RefCell::new(Record_dbg_card::new()));
+//static BATTERY_INFO: Mutex<ThreadModeRawMutex, RefCell<BattInfo>> =
+//    Mutex::new(RefCell::new(BattInfo::new()));
+static dbg_card_sts: Mutex<ThreadModeRawMutex, RefCell<Record_dbg_card>> = 
+    Mutex::new(RefCell::new(Record_dbg_card::new()));
 pub struct Record_dbg_card{
     debug_card_connect: bool,
     dedicate_port: u8,
@@ -34,7 +36,7 @@ impl Record_dbg_card {
 
 pub async fn set_debug_card_port(select_port: u8){
     let dbg_temp = dbg_card_sts.lock().await;
-    let mut assign_port = dbg_temp.borrow_mut();
+    let mut assign_port = dbg_temp.get_mut();
     assign_port.dedicate_port = select_port;
 }
 
