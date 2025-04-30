@@ -19,9 +19,9 @@ mod power;
 static dbg_card_sts: Mutex<ThreadModeRawMutex, RefCell<Record_dbg_card>> = 
     Mutex::new(RefCell::new(Record_dbg_card::new()));
 pub struct Record_dbg_card{
-    debug_card_connect: bool,
-    dedicate_port: u8,
-    initial: bool,
+    pub debug_card_connect: bool,
+    pub dedicate_port: u8,
+    pub initial: bool,
 }
 
 impl Record_dbg_card {
