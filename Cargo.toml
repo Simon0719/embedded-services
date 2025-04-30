@@ -18,7 +18,7 @@ exclude = ["examples/*"]
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/OpenDevicePartnership/embedded-services"
+repository = "https://github.com/Simon0719/embedded-services.git"
 
 [workspace.dependencies]
 bitfield = "0.17.0"
