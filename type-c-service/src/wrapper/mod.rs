@@ -4,7 +4,7 @@ use core::array::from_fn;
 use core::cell::{Cell, RefCell};
 use embassy_sync::mutex::Mutex;
 use embassy_sync::blocking_mutex::raw::ThreadModeRawMutex;
-use core::borrow::BorrowMut;
+//use core::borrow::BorrowMut;
 use embassy_futures::select::{select3, select_array, Either3};
 use embedded_services::power::policy::device::StateKind;
 use embedded_services::power::policy::{self, action};
