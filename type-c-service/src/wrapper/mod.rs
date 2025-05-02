@@ -39,7 +39,8 @@ pub async fn set_debug_card_port(select_port: u8) {
     let dbg_temp = DBG_CARD_STS.lock();
     //let mut assign_port = dbg_temp.borrow_mut();
     //assign_port.dedicate_port = select_port;
-    let mut assign_port = dbg_temp.await.borrow_mut();
+    let assign_port = dbg_temp.await.borrow_mut();
+    assign_port.debug_card_connect = select_port;
     assign_port.dedicate_port = select_port;
     assign_port.initial = true;
 }
