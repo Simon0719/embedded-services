@@ -36,10 +36,11 @@ impl RecordDbgCard {
 }
 
 pub async fn set_debug_card_port(select_port: u8) {
-    let dbg_temp = DBG_CARD_STS.lock().unwrap();
+    let dbg_temp = DBG_CARD_STS.lock().await;
     //let mut assign_port = dbg_temp.borrow_mut();
     //assign_port.dedicate_port = select_port;
     let mut assign_port = dbg_temp.await.borrow_mut();
+
     assign_port.dedicate_port = select_port;
     assign_port.initial = true;
 }
