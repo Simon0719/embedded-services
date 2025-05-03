@@ -39,14 +39,14 @@ pub async fn set_debug_card_port(select_port: u8) {
     let dbg_temp = DBG_CARD_STS.lock().await;
     //let mut assign_port = dbg_temp.borrow_mut();
     //assign_port.dedicate_port = select_port;
-    let mut assign_port = dbg_temp.await.borrow_mut();
+    let mut assign_port = dbg_temp.borrow_mut();
 
     assign_port.dedicate_port = select_port;
     assign_port.initial = true;
 }
 
 pub fn set_debug_card_status(status_update: u8, whichPort: u8) {
-    let dbg_temp = DBG_CARD_STS.lock();
+    let dbg_temp = DBG_CARD_STS.lock().await;
     let mut assign_status = dbg_temp.borrow_mut();
     if assign_status.initial == true {
         if assign_status.dedicate_port == whichPort {
@@ -60,7 +60,7 @@ pub fn set_debug_card_status(status_update: u8, whichPort: u8) {
 }
 
 pub fn get_debug_card_status() -> u8 {
-    let dbg_temp = DBG_CARD_STS.lock();
+    let dbg_temp = DBG_CARD_STS.lock().await;
     let report_status = dbg_temp.borrow_mut();
     let sts = report_status.debug_card_connect;
     return sts;
