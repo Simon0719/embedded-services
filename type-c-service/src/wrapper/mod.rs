@@ -66,7 +66,11 @@ pub async fn get_debug_card_status() -> u8 {
     return sts;
 }
 
-
+pub enum Debug_Card_Port{
+    global_port_0,
+    global_port_1,
+    global_port_2,
+}
 
 //static BATTERY_INFO: Mutex<ThreadModeRawMutex, RefCell<BattInfo>> =
 //    Mutex::new(RefCell::new(BattInfo::new()));
