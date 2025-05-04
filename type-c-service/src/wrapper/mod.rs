@@ -2,8 +2,8 @@
 //! which provides a bridge between various service messages and the actual controller functions.
 use core::array::from_fn;
 use core::cell::{Cell, RefCell};
-use embassy_sync::mutex::Mutex;
 use embassy_sync::blocking_mutex::raw::ThreadModeRawMutex;
+use embassy_sync::mutex::Mutex;
 //use core::borrow::BorrowMut;
 use embassy_futures::select::{select3, select_array, Either3};
 use embedded_services::power::policy::device::StateKind;
@@ -16,12 +16,11 @@ use embedded_usb_pd::{type_c::Current as TypecCurrent, Error, PdError, PortId as
 mod pd;
 mod power;
 
-static DBG_CARD_STS: Mutex<ThreadModeRawMutex, RefCell<RecordDbgCard>> =
-    Mutex::new(RefCell::new(RecordDbgCard::new()));
-#[derive (Debug, Clone)]    
+static DBG_CARD_STS: Mutex<ThreadModeRawMutex, RefCell<RecordDbgCard>> = Mutex::new(RefCell::new(RecordDbgCard::new()));
+#[derive(Debug, Clone)]
 pub struct RecordDbgCard {
     pub debug_card_connect: u8,
-    pub dedicate_port: u8,
+    pub dedicate_port: Debug_Card_Port,
     pub initial: bool,
 }
 
@@ -29,7 +28,7 @@ impl RecordDbgCard {
     const fn new() -> Self {
         Self {
             debug_card_connect: 0,
-            dedicate_port: 0,
+            dedicate_port: Debug_Card_Port::global_port_0,
             initial: false,
         }
     }
@@ -49,7 +48,7 @@ pub async fn set_debug_card_status(status_update: u8, whichPort: u8) {
     let dbg_temp = DBG_CARD_STS.lock().await;
     let mut assign_status = dbg_temp.borrow_mut();
     if assign_status.initial == true {
-        if assign_status.dedicate_port == whichPort {
+        if assign_status.dedicate_port as u8 == whichPort {
             assign_status.debug_card_connect = status_update;
         } else {
             error!("Inserting Debug card in incorrect port!!");
@@ -66,7 +65,7 @@ pub async fn get_debug_card_status() -> u8 {
     return sts;
 }
 
-pub enum Debug_Card_Port{
+pub enum Debug_Card_Port {
     global_port_0,
     global_port_1,
     global_port_2,
@@ -75,17 +74,14 @@ pub enum Debug_Card_Port{
 //static BATTERY_INFO: Mutex<ThreadModeRawMutex, RefCell<BattInfo>> =
 //    Mutex::new(RefCell::new(BattInfo::new()));
 
-
-
-
 //pub static dbg_card_sts: Record_dbg_card = Record_dbg_card{debug_card_connect: false, dedicate_port:0, initial:false};
-/* 
+/*
 pub async fn dbg_card_detect_init(select_port: u8) {
     dbg_card_sts.borrow_mut().dedicate_port = select_port;
     dbg_card_sts.initial = true;
 }
 
-fn update_debug_card_status(dbg_sts:bool, whichPort: u8) 
+fn update_debug_card_status(dbg_sts:bool, whichPort: u8)
 {
     if dbg_card_sts.dedicate_port == whichPort{
         dbg_card_sts.debug_card_connect = dbg_sts;
@@ -97,9 +93,8 @@ pub fn get_debug_card_status() -> bool{
 }
 */
 
-
 //fn Update_Debug_Card_Status(&mut self, status: bool, port: u8){
-//if self.whichPort == port //Only for Port 0 
+//if self.whichPort == port //Only for Port 0
 //{
 //    self.debug_card_connect = status;
 //    self.State_updated = true;
@@ -116,8 +111,6 @@ pub fn get_debug_card_status() -> bool{
 //    }
 //}
 
-
-
 //impl Record_dbg_card {
 //    fn new()-> Self{
 //        Self{debug_card_connect, State_updated, whichPort}
@@ -128,10 +121,9 @@ pub fn get_debug_card_status() -> bool{
 //        self.State_updated = false;
 //    }
 //
-//    async 
+//    async
 //    }
 
-    
 //}
 
 //static mut debug_card_connect: bool = false;
@@ -155,7 +147,7 @@ pub fn get_debug_card_status() -> bool{
 //            debug_card_connect = status;
 //            State_updated = true;
 //        }
-//        
+//
 //    }
 //}
 
@@ -264,7 +256,6 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
     /// None of the event processing functions return errors to allow processing to continue for other ports on a controller
     async fn process_event(&self, controller: &mut C) {
         let mut port_events = PortEventFlags::none();
-        
 
         for port in 0..N {
             let local_port_id = LocalPortId(port as u8);
@@ -300,33 +291,31 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
             };
             trace!("Port{} status: {:#?}", port, status);
 
-            
             let mut debug_card_detect: u8 = 0;
             if status.is_connected() && status.is_debug_accessory() {
-                    debug_card_detect = 1;   
+                debug_card_detect = 1;
             } else {
-                    debug_card_detect = 0;
-            } 
+                debug_card_detect = 0;
+            }
             //set_debug_card_status(debug_card_detect, global_port_id.0);
-            
 
-           // if status.is_connected() {
-           //     if global_port_id.0 == 0 {
-           //         if status.is_debug_accessory() {
-           //             debug_card_detect = true;
-           //         } else {
-           //             debug_card_detect = false;
-           //         }
-           //     } else {
-           //         debug_card_detect = false;
-           //     }
-           // } else {
-           //     debug_card_detect = false;
-           // }
-          
-          // Update_Debug_Card_Status(debug_card_detect, global_port_id.0);
-          //debug_card_status.Update_Debug_Card_Status(debug_card_detect, global_port_id.0);
-            
+            // if status.is_connected() {
+            //     if global_port_id.0 == 0 {
+            //         if status.is_debug_accessory() {
+            //             debug_card_detect = true;
+            //         } else {
+            //             debug_card_detect = false;
+            //         }
+            //     } else {
+            //         debug_card_detect = false;
+            //     }
+            // } else {
+            //     debug_card_detect = false;
+            // }
+
+            // Update_Debug_Card_Status(debug_card_detect, global_port_id.0);
+            //debug_card_status.Update_Debug_Card_Status(debug_card_detect, global_port_id.0);
+
             let power = match self.get_power_device(local_port_id) {
                 Ok(power) => power,
                 Err(_) => {
