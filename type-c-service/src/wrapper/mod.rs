@@ -64,7 +64,7 @@ pub async fn get_debug_card_status() -> u8 {
     let sts = report_status.debug_card_connect;
     return sts;
 }
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum Debug_Card_Port {
     global_port_0,
     global_port_1,
