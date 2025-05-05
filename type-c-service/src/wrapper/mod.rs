@@ -300,7 +300,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
             } else {
                 debug_card_detect = 0;
             }
-            set_debug_card_status(debug_card_detect, global_port_id.0);
+            set_debug_card_status(debug_card_detect, global_port_id.0).await;
 
             // if status.is_connected() {
             //     if global_port_id.0 == 0 {
