@@ -291,7 +291,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
             };
             trace!("Port{} status: {:#?}", port, status);
 
-            let mut debug_card_detect: u8 = 0;
+            let debug_card_detect: u8;
             if status.is_connected() && status.is_debug_accessory() {
                 debug_card_detect = 1;
             } else {
