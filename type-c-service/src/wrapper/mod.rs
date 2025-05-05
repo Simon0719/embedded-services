@@ -44,11 +44,11 @@ pub async fn set_debug_card_port(select_port: Debug_Card_Port) {
     assign_port.initial = true;
 }
 
-pub async fn set_debug_card_status(status_update: u8, whichPort: u8) {
+pub async fn set_debug_card_status(status_update: u8, which_Port: u8) {
     let dbg_temp = DBG_CARD_STS.lock().await;
     let mut assign_status = dbg_temp.borrow_mut();
     if assign_status.initial == true {
-        if assign_status.dedicate_port as u8 == whichPort {
+        if assign_status.dedicate_port as u8 == which_Port {
             assign_status.debug_card_connect = status_update;
         } else {
             error!("Inserting Debug card in incorrect port!!");
@@ -297,7 +297,7 @@ impl<'a, const N: usize, C: Controller> ControllerWrapper<'a, N, C> {
             } else {
                 debug_card_detect = 0;
             }
-            //set_debug_card_status(debug_card_detect, global_port_id.0);
+            set_debug_card_status(debug_card_detect, global_port_id.0);
 
             // if status.is_connected() {
             //     if global_port_id.0 == 0 {
