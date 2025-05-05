@@ -60,9 +60,11 @@ pub async fn set_debug_card_status(status_update: u8, which_Port: u8) {
 
 pub async fn get_debug_card_status() -> u8 {
     let dbg_temp = DBG_CARD_STS.lock().await;
-    let report_status = dbg_temp.borrow_mut();
-    let sts = report_status.debug_card_connect;
-    return sts;
+    //let report_status = dbg_temp.borrow_mut();
+    //let sts = report_status.debug_card_connect;
+    //return sts;
+    let report = dbg_temp.borrow().debug_card_connect;
+    return report;
 }
 #[derive(Debug, Clone, Copy)]
 pub enum Debug_Card_Port {
